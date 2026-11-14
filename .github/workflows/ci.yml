@@ -1,0 +1,64 @@
+# Confere tipos, testes, build e o pacote a cada envio. Não publica nada e não guarda nenhum segredo.
+# Actions fixadas pelo commit (SHA), conferidas em 2026-11-09; o Dependabot propõe as atualizações.
+
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  testes:
+    name: node ${{ matrix.node }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["22", "24"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - name: Dependências (sem scripts de instalação)
+        run: npm ci --ignore-scripts
+      - name: Tipos
+        run: npm run typecheck
+      - name: Testes
+        run: npm test
+      - name: Build
+        run: npm run build
+      - name: O pacote só leva dist, README, licença e package.json
+        run: |
+          npm pack --dry-run --json --ignore-scripts > pacote.json
+          node -e '
+            const [p] = require("./pacote.json");
+            const fora = p.files.map((f) => f.path).filter((f) => !/^(dist\/|README\.md$|LICENSE$|package\.json$)/.test(f));
+            if (fora.length) { console.error("Arquivos que não deviam ir no pacote:", fora); process.exit(1); }
+            console.log(p.files.length, "arquivos,", p.size, "bytes");
+          '
+
+  seguranca:
+    name: vulnerabilidades e segredos
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Trivy (dependências, configuração e segredos)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln,misconfig,secret
+          severity: CRITICAL,HIGH
+          exit-code: "1"

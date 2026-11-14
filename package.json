@@ -1,0 +1,50 @@
+{
+  "name": "confere-br",
+  "version": "0.1.0",
+  "description": "Confere CNPJ (inclusive o alfanumérico), CPF, chave de acesso de NF-e, CT-e e MDF-e e placas. Sem dependências.",
+  "keywords": [
+    "cnpj",
+    "cnpj-alfanumerico",
+    "cpf",
+    "chave-de-acesso",
+    "nfe",
+    "cte",
+    "mdfe",
+    "placa",
+    "mercosul",
+    "brasil",
+    "validacao"
+  ],
+  "license": "MIT",
+  "author": "Allan Felipe Silva",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DarkkSorkk/confere-br.git"
+  },
+  "homepage": "https://github.com/DarkkSorkk/confere-br#readme",
+  "bugs": "https://github.com/DarkkSorkk/confere-br/issues",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "typescript": "7.0.2"
+  }
+}
