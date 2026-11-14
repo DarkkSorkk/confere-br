@@ -4,6 +4,11 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    ignore:
+      # Os tipos acompanham a versão mais antiga do Node que o CI testa (engines). Com tipos de um Node mais
+      # novo, o código poderia usar algo que não existe nas versões suportadas, sem erro de tipo.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /
